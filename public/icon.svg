@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <text x="256" y="305" font-family="-apple-system, Arial Black, Impact, sans-serif" font-size="120" font-weight="900" fill="#facc15" text-anchor="middle" letter-spacing="-3">BECOME</text>
+  <ellipse cx="120" cy="180" rx="14" ry="18" fill="#000" opacity="0.85" transform="rotate(15 120 180)"/>
+  <ellipse cx="400" cy="350" rx="18" ry="14" fill="#000" opacity="0.9" transform="rotate(-20 400 350)"/>
+  <ellipse cx="350" cy="200" rx="8" ry="11" fill="#7f1d1d" opacity="0.8"/>
+  <ellipse cx="180" cy="380" rx="12" ry="9" fill="#000" opacity="0.85"/>
+</svg>
