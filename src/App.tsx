@@ -67,14 +67,17 @@ export default function App() {
 
   useEffect(() => { save(state); }, [state]);
 
-  // Pro gate: show after PRO_GATE_AFTER_DAYS if not dismissed and not already pro
+  // Pro gate: show after first workout completed OR 7 days, whichever comes first
   useEffect(() => {
     if (!state.profile || proTrialDismissed) return;
     const days = daysSince(state.profile.createdAt);
-    if (days >= PRO_GATE_AFTER_DAYS) {
-      setShowProGate(true);
+    const hasWorkout = state.workoutLogs.length > 0;
+    if (days >= PRO_GATE_AFTER_DAYS || hasWorkout) {
+      // Small delay so it doesn't pop instantly on load
+      const t = setTimeout(() => setShowProGate(true), 1200);
+      return () => clearTimeout(t);
     }
-  }, [state.profile, proTrialDismissed]);
+  }, [state.profile, state.workoutLogs.length, proTrialDismissed]);
 
   // Weekly check-in: show on Sunday if they haven't dismissed this week
   useEffect(() => {
