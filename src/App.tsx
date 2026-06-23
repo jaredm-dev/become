@@ -14,6 +14,7 @@ import ShareCard from './components/ShareCard';
 import ProGate from './components/ProGate';
 import WeeklyCheckIn from './components/WeeklyCheckIn';
 import TitlePreview from './components/TitlePreview';
+import InstallHint from './components/InstallHint';
 
 type View = 'dash' | 'workout' | 'nutrition' | 'progress' | 'program' | 'settings' | 'share';
 
@@ -199,6 +200,7 @@ export default function App() {
         {view === 'settings' && <Settings state={state} onUpdate={onUpdateProfile} onReset={onResetAll} onBack={() => setView('dash')} />}
         {view === 'share' && <ShareCard state={state} onBack={() => setView('dash')} />}
       </div>
+      <InstallHint />
     </>
   );
 }

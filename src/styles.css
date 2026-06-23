@@ -1162,3 +1162,54 @@ textarea { min-height: 80px; resize: vertical; }
 .big-action.done .ba-label {
   color: var(--accent);
 }
+
+/* ---- Install hint banner (iOS Safari first-visit) ---- */
+.install-hint {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  max-width: 460px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #fde047, #facc15);
+  color: #1a1208;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  box-shadow: 0 8px 32px rgba(250, 204, 21, 0.35), 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 60;
+  animation: ih-slide 0.4s ease-out;
+}
+@keyframes ih-slide {
+  from { transform: translateY(120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.install-hint .ih-body { flex: 1; }
+.install-hint strong { display: block; font-size: 15px; font-weight: 800; letter-spacing: 0.3px; }
+.install-hint p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: #2a1a08; }
+.install-hint .ih-icon {
+  display: inline-block;
+  background: #1a1208;
+  color: #facc15;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 18px;
+  margin: 0 2px;
+  vertical-align: -3px;
+}
+.install-hint > button {
+  background: rgba(0,0,0,0.15);
+  border: none;
+  color: #1a1208;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+}
