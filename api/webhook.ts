@@ -26,12 +26,18 @@ async function recordFromSubscription(sub: Stripe.Subscription, userIdHint?: str
   if (!userId) return null;
 
   const item = sub.items?.data?.[0];
+  // In Stripe API 2025+, current_period_end moved from subscription to line items.
+  // Read both locations to stay compatible with older + newer API versions.
+  const currentPeriodEnd =
+    (sub as any).current_period_end
+    ?? (item as any)?.current_period_end
+    ?? 0;
   return {
     userId,
     customerId: typeof sub.customer === 'string' ? sub.customer : sub.customer.id,
     subscriptionId: sub.id,
     status: sub.status,
-    currentPeriodEnd: sub.current_period_end,
+    currentPeriodEnd,
     trialEnd: sub.trial_end || null,
     plan: planFromPriceId(item?.price?.id),
     updatedAt: Math.floor(Date.now() / 1000),

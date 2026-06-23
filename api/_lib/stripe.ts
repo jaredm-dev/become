@@ -5,7 +5,7 @@ export function stripe(): Stripe {
   if (!_stripe) {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) throw new Error('STRIPE_SECRET_KEY env var not set');
-    _stripe = new Stripe(key, { apiVersion: '2024-12-18.acacia' as any });
+    _stripe = new Stripe(key, { apiVersion: '2026-04-22.dahlia' as any });
   }
   return _stripe;
 }
