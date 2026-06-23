@@ -4,6 +4,7 @@ import { getReminderTime, setReminderTime, clearReminder, requestNotificationPer
 import { subscribePush, unsubscribePush } from '../lib/push';
 import { MUSCLE_LABELS, FOCUS_PRESETS } from '../lib/program-builder';
 import { exportData, importData } from '../lib/storage';
+import { refreshProStatus, openCustomerPortal, startCheckout, getCachedProStatus, type ProStatus } from '../lib/pro';
 
 interface Props {
   state: AppState;
@@ -23,6 +24,25 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
   useEffect(() => {
     if (typeof Notification !== 'undefined') setPermState(Notification.permission);
   }, []);
+
+  const [pro, setPro] = useState<ProStatus>(() => getCachedProStatus());
+  const [billingBusy, setBillingBusy] = useState(false);
+  const [billingMsg, setBillingMsg] = useState('');
+  useEffect(() => { refreshProStatus().then(setPro); }, []);
+
+  const onManage = async () => {
+    setBillingBusy(true);
+    setBillingMsg('');
+    const r = await openCustomerPortal();
+    if (!r.ok) { setBillingMsg(r.reason || 'Could not open billing portal'); setBillingBusy(false); }
+  };
+  const onSubscribe = async (plan: 'monthly' | 'yearly') => {
+    setBillingBusy(true);
+    setBillingMsg('');
+    const r = await startCheckout(plan);
+    if (!r.ok) { setBillingMsg(r.reason || 'Checkout failed'); setBillingBusy(false); }
+  };
+  const fmtDate = (s: number | null) => s ? new Date(s * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
   const enableReminder = async (hhmm: string) => {
     setReminder(hhmm);
@@ -224,6 +244,37 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
       </div>
 
       <button className="primary big" onClick={() => onUpdate(draft)}>Save changes</button>
+
+      <h3 className="section-h">Subscription</h3>
+      {pro.pro ? (
+        <div className="sub-block">
+          <div className="sub-status-row">
+            <span className="sub-badge">BECOME PRO</span>
+            <span className="muted">
+              {pro.status === 'trialing' ? `Trial ends ${fmtDate(pro.trialEnd)}` : `Renews ${fmtDate(pro.currentPeriodEnd)}`}
+            </span>
+          </div>
+          <div className="hint">Plan: {pro.plan === 'yearly' ? '$39 / year' : '$4.99 / month'}</div>
+          <button className="primary big" onClick={onManage} disabled={billingBusy}>
+            {billingBusy ? 'Opening…' : 'Manage subscription'}
+          </button>
+        </div>
+      ) : (
+        <div className="sub-block">
+          <div className="hint" style={{ marginBottom: 10 }}>
+            Free tier active. Unlock cloud sync, daily workout push, body measurements + more.
+          </div>
+          <div className="row">
+            <button className="primary" onClick={() => onSubscribe('yearly')} disabled={billingBusy}>
+              {billingBusy ? '…' : '$39/yr — start trial'}
+            </button>
+            <button onClick={() => onSubscribe('monthly')} disabled={billingBusy}>
+              $4.99/mo
+            </button>
+          </div>
+        </div>
+      )}
+      {billingMsg && <div className="hint" style={{ marginTop: 6, color: 'var(--danger)' }}>{billingMsg}</div>}
 
       <h3 className="section-h">Daily weigh-in reminder</h3>
       <div className="field">
