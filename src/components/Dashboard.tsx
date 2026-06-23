@@ -6,6 +6,10 @@ import { todayISO } from '../lib/storage';
 import { computeStreaks, streakPhrase } from '../lib/streaks';
 import Title from './Title';
 
+function weekNumber(startIso: string): number {
+  return Math.floor((Date.now() - new Date(startIso).getTime()) / (7 * 86_400_000)) + 1;
+}
+
 interface Props {
   state: AppState;
   onNav: (v: string) => void;
@@ -27,6 +31,8 @@ export default function Dashboard({ state, onNav }: Props) {
   const needsWeighIn = shouldShowInAppReminder(lastLogDate) && lastLogDate !== todayISO();
   const streaks = computeStreaks(state);
   const todayNutrition = state.nutritionLogs.find(n => n.date === todayISO());
+  const weekNum = weekNumber(state.programStartDate || p.createdAt);
+  const todayWorkoutDone = state.workoutLogs.some(l => l.date === todayISO());
 
   return (
     <div className="dash">
@@ -44,7 +50,10 @@ export default function Dashboard({ state, onNav }: Props) {
       </div>
 
       <header className="hero">
-        <div className="hello">Hey, {p.name}</div>
+        <div className="hero-top">
+          <div className="hello">Hey, {p.name}</div>
+          <div className="week-badge">Week {weekNum}</div>
+        </div>
         <div className="big">{latestWeight} <span>lb</span></div>
         <div className="goal-line">
           → {p.goalWeightLb} lb · {weeks} wk · {tDateStr}
@@ -98,8 +107,8 @@ export default function Dashboard({ state, onNav }: Props) {
         </div>
       )}
 
-      <button className="big-action" onClick={() => onNav('workout')}>
-        <div className="ba-label">Today's session</div>
+      <button className={`big-action ${todayWorkoutDone ? 'done' : ''}`} onClick={() => onNav('workout')}>
+        <div className="ba-label">{todayWorkoutDone ? '✓ Completed' : "Today's session"}</div>
         <div className="ba-title">{wk.name}</div>
         <div className="ba-sub">{wk.focus} · ~{wk.estMinutes} min · {wk.exercises.length} exercises</div>
       </button>

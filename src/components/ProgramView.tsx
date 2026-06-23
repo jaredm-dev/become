@@ -15,7 +15,10 @@ export default function ProgramView({ state, onBack }: Props) {
       <header className="page-head">
         <button onClick={onBack} className="back">← Back</button>
         <h2>Full Plan</h2>
-        <div className="focus">{p.experience === 'beginner' ? 'Beginner Full-Body' : 'PPL + Cardio Split'} · 7-day cycle</div>
+        <div className="focus">
+          {p.liftDays <= 3 ? 'Full-Body Split' : p.liftDays === 4 ? 'Upper/Lower Split' : 'Push/Pull/Legs Split'}
+          {' '}· {p.liftDays} lifting + {p.cardioDays} cardio · 7-day cycle
+        </div>
       </header>
 
       {prog.map((day, i) => (

@@ -881,3 +881,284 @@ textarea { min-height: 80px; resize: vertical; }
   padding: 14px;
   margin-bottom: 12px;
 }
+
+/* ============================================================
+   LANDING SCREEN
+   ============================================================ */
+.landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 8px;
+}
+.landing-logo {
+  padding: 0 0 8px;
+}
+.landing-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0 32px;
+}
+.landing-tagline {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+.landing-sub {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+.landing-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.pill {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.landing-cta {
+  margin-top: auto;
+}
+.landing-fine {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+
+/* ============================================================
+   ONBOARDING — streamlined
+   ============================================================ */
+.step-title-wrap {
+  margin: -8px -4px 8px;
+}
+.goal-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.goal-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.goal-card.on {
+  border-color: var(--accent);
+  background: rgba(34,211,238,0.07);
+}
+.goal-card .goal-emoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.goal-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.goal-card strong {
+  font-size: 16px;
+  font-weight: 700;
+  display: block;
+}
+.goal-card span {
+  font-size: 13px;
+  color: var(--muted);
+  display: block;
+  font-weight: 400;
+}
+.onboard-hint-box {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--accent);
+  margin-top: 12px;
+}
+
+/* ============================================================
+   PRO GATE OVERLAY
+   ============================================================ */
+.progate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 env(safe-area-inset-bottom);
+}
+.progate-card {
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 20px 32px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.progate-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #001216;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+.progate-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+.progate-sub {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.progate-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin-bottom: 20px;
+}
+.progate-feat {
+  font-size: 13px;
+  color: var(--fg);
+  font-weight: 500;
+}
+.progate-price {
+  margin-bottom: 16px;
+}
+.progate-amount {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.progate-period {
+  font-size: 16px;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.progate-skip {
+  width: 100%;
+  margin-top: 10px;
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  font-size: 14px;
+}
+.progate-fine {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+
+/* ============================================================
+   WEEKLY CHECK-IN
+   ============================================================ */
+.checkin-card {
+  border-radius: 24px 24px 0 0;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.checkin-week {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.checkin-weight {
+  margin: 16px 0;
+}
+.checkin-weight-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+.checkin-weight-row button {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  font-size: 22px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+.checkin-weight-row input {
+  flex: 1;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  padding: 10px;
+}
+.checkin-delta {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.checkin-delta.up { color: var(--accent); }
+.checkin-delta.down { color: #a78bfa; }
+.checkin-msg {
+  background: var(--bg-2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--fg);
+  margin: 12px 0 16px;
+  border-left: 3px solid var(--accent);
+}
+
+/* ============================================================
+   DASHBOARD UPGRADES
+   ============================================================ */
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.week-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--muted);
+}
+.big-action.done {
+  border-color: var(--accent);
+  background: rgba(34,211,238,0.06);
+}
+.big-action.done .ba-label {
+  color: var(--accent);
+}

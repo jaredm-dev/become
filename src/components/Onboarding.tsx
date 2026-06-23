@@ -1,64 +1,50 @@
 import { useState } from 'react';
-import type { Profile, Sex, ActivityLevel, Experience, Goal, MuscleGroup } from '../types';
-import { MUSCLE_LABELS, FOCUS_PRESETS } from '../lib/program-builder';
+import type { Profile, Sex, Goal, Experience } from '../types';
+import Title from './Title';
 
 interface Props {
   onComplete: (p: Profile) => void;
 }
 
+const STEPS = 4;
+
 export default function Onboarding({ onComplete }: Props) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
-  const [age, setAge] = useState(25);
-  const [sex, setSex] = useState<Sex>('male');
-  const [heightFt, setHeightFt] = useState(5);
-  const [heightIn, setHeightIn] = useState(10);
-  const [startWeight, setStartWeight] = useState(150);
-  const [goalWeight, setGoalWeight] = useState(180);
-  const [activity, setActivity] = useState<ActivityLevel>('moderate');
-  const [experience, setExperience] = useState<Experience>('beginner');
   const [goal, setGoal] = useState<Goal>('bulk');
-  const [goalWeeks, setGoalWeeks] = useState<number | null>(null);
+  const [sex, setSex] = useState<Sex>('male');
+  const [startWeight, setStartWeight] = useState(160);
+  const [goalWeight, setGoalWeight] = useState(185);
+  const [experience, setExperience] = useState<Experience>('beginner');
   const [liftDays, setLiftDays] = useState(4);
-  const [cardioDays, setCardioDays] = useState(2);
-  const [priorityMuscles, setPriorityMuscles] = useState<MuscleGroup[]>([]);
-  const [focusMode, setFocusMode] = useState<'preset' | 'custom'>('preset');
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const [mealsPerDay, setMealsPerDay] = useState(4);
-  const [eatStart, setEatStart] = useState('08:00');
-  const [eatEnd, setEatEnd] = useState('20:00');
-
-  const togglePriority = (m: MuscleGroup) => {
-    setPriorityMuscles(curr => {
-      if (curr.includes(m)) return curr.filter(x => x !== m);
-      if (curr.length >= 3) return [...curr.slice(1), m]; // FIFO eviction
-      return [...curr, m];
-    });
-  };
 
   const next = () => setStep(s => s + 1);
   const back = () => setStep(s => Math.max(0, s - 1));
 
+  const pct = Math.round(((step + 1) / STEPS) * 100);
+  const diff = goalWeight - startWeight;
+
   const finish = () => {
+    const now = new Date();
     const profile: Profile = {
-      name: name || 'Athlete',
-      age,
+      name: name.trim() || 'Athlete',
+      age: 25,
       sex,
-      heightIn: heightFt * 12 + heightIn,
+      heightIn: sex === 'male' ? 70 : 65,
       startWeightLb: startWeight,
       currentWeightLb: startWeight,
       goalWeightLb: goalWeight,
-      goalWeeks,
-      activity,
+      goalWeeks: null,
+      activity: 'moderate',
       experience,
       goal,
       liftDays,
-      cardioDays,
-      priorityMuscles,
-      mealsPerDay,
-      eatingWindowStart: eatStart,
-      eatingWindowEnd: eatEnd,
-      createdAt: new Date().toISOString(),
+      cardioDays: 1,
+      priorityMuscles: [],
+      mealsPerDay: 4,
+      eatingWindowStart: '08:00',
+      eatingWindowEnd: '20:00',
+      createdAt: now.toISOString(),
     };
     onComplete(profile);
   };
@@ -66,37 +52,51 @@ export default function Onboarding({ onComplete }: Props) {
   return (
     <div className="onboard">
       <div className="onboard-progress">
-        <div className="bar" style={{ width: `${((step + 1) / 9) * 100}%` }} />
+        <div className="bar" style={{ width: `${pct}%` }} />
       </div>
 
       {step === 0 && (
         <div className="step">
-          <h1>BECOME.</h1>
-          <p className="sub">Zero to hero. Lifting, cardio, food. Dialed in.</p>
-          <label>What should we call you?</label>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" autoFocus />
-          <button className="primary" onClick={next} disabled={!name.trim()}>Let's go →</button>
+          <div className="step-title-wrap">
+            <Title pct={0} />
+          </div>
+          <h2>What's your name?</h2>
+          <p className="sub">We'll personalize your program around you.</p>
+          <input
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Your name"
+            autoFocus
+            onKeyDown={e => e.key === 'Enter' && name.trim() && next()}
+          />
+          <button className="primary big" onClick={next} disabled={!name.trim()}>
+            Let's go →
+          </button>
         </div>
       )}
 
       {step === 1 && (
         <div className="step">
-          <h2>The basics</h2>
-          <label>Age</label>
-          <input type="number" value={age} onChange={e => setAge(+e.target.value)} />
-          <label>Sex</label>
-          <div className="seg">
-            <button className={sex === 'male' ? 'on' : ''} onClick={() => setSex('male')}>Male</button>
-            <button className={sex === 'female' ? 'on' : ''} onClick={() => setSex('female')}>Female</button>
-          </div>
-          <label>Height</label>
-          <div className="row">
-            <div className="col">
-              <input type="number" value={heightFt} onChange={e => setHeightFt(+e.target.value)} /><span>ft</span>
-            </div>
-            <div className="col">
-              <input type="number" value={heightIn} onChange={e => setHeightIn(+e.target.value)} /><span>in</span>
-            </div>
+          <h2>What's your goal, {name}?</h2>
+          <p className="sub">This sets your calories, macros, and program intensity.</p>
+          <div className="goal-cards">
+            {([
+              { v: 'bulk' as Goal, emoji: '📈', t: 'Build muscle', d: 'Calorie surplus, strength focus. Add mass.' },
+              { v: 'recomp' as Goal, emoji: '⚖️', t: 'Body recomp', d: 'Maintain weight, build muscle, drop fat.' },
+              { v: 'cut' as Goal, emoji: '🔥', t: 'Lose fat', d: 'Calorie deficit, preserve muscle. Get lean.' },
+            ]).map(o => (
+              <button
+                key={o.v}
+                className={`goal-card ${goal === o.v ? 'on' : ''}`}
+                onClick={() => setGoal(o.v)}
+              >
+                <span className="goal-emoji">{o.emoji}</span>
+                <div>
+                  <strong>{o.t}</strong>
+                  <span>{o.d}</span>
+                </div>
+              </button>
+            ))}
           </div>
           <div className="nav">
             <button onClick={back}>← Back</button>
@@ -107,228 +107,37 @@ export default function Onboarding({ onComplete }: Props) {
 
       {step === 2 && (
         <div className="step">
-          <h2>Weight</h2>
+          <h2>Your body</h2>
+          <p className="sub">Used to calculate your exact calorie and macro targets.</p>
+
+          <label>Sex</label>
+          <div className="seg" style={{ marginBottom: 8 }}>
+            <button className={sex === 'male' ? 'on' : ''} onClick={() => setSex('male')}>Male</button>
+            <button className={sex === 'female' ? 'on' : ''} onClick={() => setSex('female')}>Female</button>
+          </div>
+
           <label>Current weight (lb)</label>
-          <input type="number" value={startWeight} onChange={e => setStartWeight(+e.target.value)} />
+          <input
+            type="number"
+            value={startWeight}
+            onChange={e => setStartWeight(+e.target.value || 0)}
+          />
+
           <label>Goal weight (lb)</label>
-          <input type="number" value={goalWeight} onChange={e => setGoalWeight(+e.target.value)} />
-          <p className="hint">
-            {goalWeight > startWeight
-              ? `+${goalWeight - startWeight} lb to gain. Lean bulk pace ~0.5 lb/week.`
-              : goalWeight < startWeight
-              ? `−${startWeight - goalWeight} lb to lose.`
-              : 'Recomp mode — same scale, more muscle.'}
-          </p>
-          <div className="nav">
-            <button onClick={back}>← Back</button>
-            <button className="primary" onClick={next}>Next →</button>
-          </div>
-        </div>
-      )}
+          <input
+            type="number"
+            value={goalWeight}
+            onChange={e => setGoalWeight(+e.target.value || 0)}
+          />
 
-      {step === 3 && (
-        <div className="step">
-          <h2>Goal</h2>
-          {([
-            { v: 'bulk' as Goal, t: 'Bulk', d: 'Gain weight + muscle. Calorie surplus.' },
-            { v: 'recomp' as Goal, t: 'Recomp', d: 'Maintain weight, build muscle, drop fat.' },
-            { v: 'cut' as Goal, t: 'Cut', d: 'Lose fat while preserving muscle.' },
-          ]).map(o => (
-            <button key={o.v} className={`card ${goal === o.v ? 'on' : ''}`} onClick={() => setGoal(o.v)}>
-              <strong>{o.t}</strong>
-              <span>{o.d}</span>
-            </button>
-          ))}
-          <div className="nav">
-            <button onClick={back}>← Back</button>
-            <button className="primary" onClick={next}>Next →</button>
-          </div>
-        </div>
-      )}
-
-      {step === 4 && (() => {
-        const diff = goalWeight - startWeight;
-        const absDiff = Math.abs(diff);
-        const recommendedWeeks = absDiff === 0 ? 12 : Math.ceil(absDiff / (goal === 'cut' ? 1.0 : 0.5));
-        const usedWeeks = goalWeeks ?? recommendedWeeks;
-        const rate = absDiff / Math.max(1, usedWeeks);
-        let verdict = 'safe';
-        let msg = '';
-        if (goal === 'bulk') {
-          if (rate <= 0.1) { verdict = 'slow'; msg = 'Long timeline — you’ll barely need a surplus. Probably won’t hit the goal.'; }
-          else if (rate <= 0.6) { verdict = 'safe'; msg = 'Clean lean bulk pace. Most gain will be muscle.'; }
-          else if (rate <= 1.0) { verdict = 'aggressive'; msg = 'Aggressive bulk. Expect some fat alongside muscle.'; }
-          else { verdict = 'bad'; msg = 'Faster than 1 lb/week is mostly fat. Extend the timeline.'; }
-        } else if (goal === 'cut') {
-          if (rate <= 1.0) { verdict = 'safe'; msg = 'Sustainable cut pace. Keep your muscle.'; }
-          else if (rate <= 2.0) { verdict = 'aggressive'; msg = 'Aggressive cut. Expect strength dips.'; }
-          else { verdict = 'bad'; msg = 'Faster than 2 lb/week risks muscle loss.'; }
-        } else {
-          msg = 'Recomp — timeline less critical, just stay consistent.';
-        }
-        const presets = goal === 'cut'
-          ? [{ w: 8, t: '2 mo' }, { w: 12, t: '3 mo' }, { w: 24, t: '6 mo' }, { w: 52, t: '1 yr' }]
-          : [{ w: 12, t: '3 mo' }, { w: 24, t: '6 mo' }, { w: 52, t: '1 yr' }, { w: 104, t: '2 yr' }];
-        return (
-          <div className="step">
-            <h2>Timeline</h2>
-            <p className="sub" style={{ marginBottom: 16 }}>
-              {absDiff > 0 ? `${diff > 0 ? '+' : '−'}${absDiff} lb to ${diff > 0 ? 'gain' : 'lose'}. ` : 'Recomp. '}
-              How long do you want this to take?
-            </p>
-
-            <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
-              <button
-                className={goalWeeks === null ? 'on card' : 'card'}
-                style={{ flex: '1 1 100%' }}
-                onClick={() => setGoalWeeks(null)}
-              >
-                <strong>Recommended ({recommendedWeeks} weeks)</strong>
-                <span>Sustainable pace, mostly muscle{goal === 'cut' ? ' preserved' : ''}.</span>
-              </button>
-              {presets.map(p => (
-                <button
-                  key={p.w}
-                  className={goalWeeks === p.w ? 'on' : ''}
-                  style={{ flex: '1 1 22%', minWidth: 70 }}
-                  onClick={() => setGoalWeeks(p.w)}
-                >
-                  {p.t}
-                </button>
-              ))}
+          {diff !== 0 && (
+            <div className="onboard-hint-box">
+              {goal === 'bulk' && diff > 0 && `+${diff} lb to gain · ~${Math.ceil(diff / 0.5)} weeks at a lean bulk pace`}
+              {goal === 'cut' && diff < 0 && `${diff} lb to lose · ~${Math.ceil(Math.abs(diff) / 1.0)} weeks at a sustainable pace`}
+              {goal === 'recomp' && 'Scale stays the same — the goal is composition, not weight.'}
+              {goal === 'bulk' && diff < 0 && '⚠ Goal weight is lower than current — switch to Cut?'}
+              {goal === 'cut' && diff > 0 && '⚠ Goal weight is higher than current — switch to Bulk?'}
             </div>
-
-            <label style={{ marginTop: 16 }}>Or custom (weeks)</label>
-            <input
-              type="number"
-              value={goalWeeks ?? ''}
-              placeholder={`${recommendedWeeks}`}
-              onChange={e => {
-                const v = parseInt(e.target.value);
-                setGoalWeeks(isNaN(v) || v <= 0 ? null : v);
-              }}
-            />
-
-            {absDiff > 0 && (
-              <p className={`pace-${verdict}`} style={{ fontSize: 13, marginTop: 12, padding: 10, borderRadius: 8, lineHeight: 1.4 }}>
-                <strong>{rate.toFixed(2)} lb/week</strong> — {msg}
-              </p>
-            )}
-            <div className="nav">
-              <button onClick={back}>← Back</button>
-              <button className="primary" onClick={next}>Next →</button>
-            </div>
-          </div>
-        );
-      })()}
-
-      {step === 5 && (
-        <div className="step">
-          <h2>Lifting experience</h2>
-          {([
-            { v: 'beginner' as Experience, t: 'Beginner', d: '<1 year. Full-body program, learn the lifts.' },
-            { v: 'intermediate' as Experience, t: 'Intermediate', d: '1–3 years. PPL split, hypertrophy focus.' },
-            { v: 'advanced' as Experience, t: 'Advanced', d: '3+ years. Heavy volume, periodized.' },
-          ]).map(o => (
-            <button key={o.v} className={`card ${experience === o.v ? 'on' : ''}`} onClick={() => setExperience(o.v)}>
-              <strong>{o.t}</strong>
-              <span>{o.d}</span>
-            </button>
-          ))}
-          <div className="nav">
-            <button onClick={back}>← Back</button>
-            <button className="primary" onClick={next}>Next →</button>
-          </div>
-        </div>
-      )}
-
-      {step === 6 && (
-        <div className="step">
-          <h2>Your training schedule</h2>
-
-          <label>How many days per week do you want to lift?</label>
-          <div className="seg">
-            {[2,3,4,5,6].map(n => (
-              <button key={n} className={liftDays === n ? 'on' : ''} onClick={() => setLiftDays(n)}>{n}</button>
-            ))}
-          </div>
-
-          <label>How many days per week do you want to do cardio?</label>
-          <div className="seg">
-            {[0,1,2,3,4].map(n => (
-              <button key={n} className={cardioDays === n ? 'on' : ''} onClick={() => setCardioDays(n)}>{n}</button>
-            ))}
-          </div>
-          <p className="hint">
-            {liftDays + cardioDays > 7
-              ? '⚠ Combined days exceed 7 — some days will combine lift + cardio.'
-              : `${liftDays} lifting + ${cardioDays} cardio + ${7 - liftDays - cardioDays} rest days.`}
-          </p>
-
-          <div className="nav">
-            <button onClick={back}>← Back</button>
-            <button className="primary" onClick={next}>Next →</button>
-          </div>
-        </div>
-      )}
-
-      {step === 7 && (
-        <div className="step">
-          <h2>What do you want to build?</h2>
-          <p className="sub">Pick a focus. Your program will bias extra sets and exercises toward it.</p>
-
-          {focusMode === 'preset' ? (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {FOCUS_PRESETS.map(preset => (
-                  <button
-                    key={preset.id}
-                    className={`card ${selectedPreset === preset.id ? 'on' : ''}`}
-                    onClick={() => {
-                      setSelectedPreset(preset.id);
-                      setPriorityMuscles(preset.muscles);
-                    }}
-                  >
-                    <strong>{preset.emoji} {preset.label}</strong>
-                    <span>{preset.description}</span>
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setFocusMode('custom')}
-                style={{ marginTop: 16, background: 'transparent', border: 'none', color: 'var(--accent)', textDecoration: 'underline' }}
-              >
-                Or pick specific muscle groups →
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="hint" style={{ marginBottom: 12 }}>
-                Tap up to 3 muscle groups. Order = priority (#1 gets the most extra volume).
-              </p>
-              <div className="muscle-grid">
-                {MUSCLE_LABELS.map(m => {
-                  const idx = priorityMuscles.indexOf(m.value);
-                  return (
-                    <button
-                      key={m.value}
-                      className={`muscle-chip ${idx >= 0 ? 'on' : ''}`}
-                      onClick={() => { setSelectedPreset(null); togglePriority(m.value); }}
-                    >
-                      <span className="emoji">{m.emoji}</span>
-                      <span>{m.label}</span>
-                      {idx >= 0 && <span className="rank">#{idx + 1}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => setFocusMode('preset')}
-                style={{ marginTop: 16, background: 'transparent', border: 'none', color: 'var(--accent)', textDecoration: 'underline' }}
-              >
-                ← Back to presets
-              </button>
-            </>
           )}
 
           <div className="nav">
@@ -338,42 +147,48 @@ export default function Onboarding({ onComplete }: Props) {
         </div>
       )}
 
-      {step === 8 && (
+      {step === 3 && (
         <div className="step">
-          <h2>Eating + activity</h2>
+          <h2>Training experience</h2>
+          <p className="sub">Determines your program split and volume.</p>
 
-          <label>Daily activity (outside the gym)</label>
-          <select value={activity} onChange={e => setActivity(e.target.value as ActivityLevel)}>
-            <option value="sedentary">Sedentary — desk job</option>
-            <option value="light">Light — some walking</option>
-            <option value="moderate">Moderate — on feet most of day</option>
-            <option value="high">High — physical job + workouts</option>
-            <option value="athlete">Athlete — multiple sessions/day</option>
-          </select>
+          {([
+            { v: 'beginner' as Experience, t: 'Beginner', d: 'Under 1 year. Full-body program, learn the big lifts.' },
+            { v: 'intermediate' as Experience, t: 'Intermediate', d: '1–3 years. Push/Pull/Legs split, higher volume.' },
+            { v: 'advanced' as Experience, t: 'Advanced', d: '3+ years. High volume, periodized, progressive.' },
+          ]).map(o => (
+            <button
+              key={o.v}
+              className={`goal-card ${experience === o.v ? 'on' : ''}`}
+              onClick={() => setExperience(o.v)}
+            >
+              <div>
+                <strong>{o.t}</strong>
+                <span>{o.d}</span>
+              </div>
+            </button>
+          ))}
 
-          <label>Meals per day</label>
+          <label style={{ marginTop: 20 }}>Lifting days per week</label>
           <div className="seg">
-            {[3,4,5,6].map(n => (
-              <button key={n} className={mealsPerDay === n ? 'on' : ''} onClick={() => setMealsPerDay(n)}>{n}</button>
+            {[2, 3, 4, 5, 6].map(n => (
+              <button
+                key={n}
+                className={liftDays === n ? 'on' : ''}
+                onClick={() => setLiftDays(n)}
+              >
+                {n}
+              </button>
             ))}
           </div>
+          <p className="hint" style={{ marginTop: 6 }}>
+            {liftDays <= 3 ? 'Full-body sessions' : liftDays <= 4 ? 'Upper/Lower split' : 'Push/Pull/Legs split'}
+          </p>
 
-          <label>Eating window</label>
-          <div className="row">
-            <div className="col">
-              <input type="time" value={eatStart} onChange={e => setEatStart(e.target.value)} />
-              <span style={{ position: 'static', display: 'block', textAlign: 'center', marginTop: 4 }}>Start</span>
-            </div>
-            <div className="col">
-              <input type="time" value={eatEnd} onChange={e => setEatEnd(e.target.value)} />
-              <span style={{ position: 'static', display: 'block', textAlign: 'center', marginTop: 4 }}>End</span>
-            </div>
-          </div>
-
-          <div className="nav">
-            <button onClick={back}>← Back</button>
-            <button className="primary" onClick={finish}>Build my plan →</button>
-          </div>
+          <button className="primary big" style={{ marginTop: 24 }} onClick={finish}>
+            Build my program →
+          </button>
+          <button style={{ marginTop: 8, width: '100%' }} onClick={back}>← Back</button>
         </div>
       )}
     </div>
