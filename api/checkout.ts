@@ -23,8 +23,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       client_reference_id: userId,
       metadata: { userId, plan },
       allow_promotion_codes: true,
-      // Collect email so we can reach them if billing breaks
-      customer_creation: 'always',
     });
 
     return res.status(200).json({ url: session.url });
