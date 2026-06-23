@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { stripe, SITE_URL } from './_lib/stripe';
-import { getBilling } from './_lib/billing';
+import { stripe, SITE_URL } from './_lib/stripe.js';
+import { getBilling } from './_lib/billing.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });

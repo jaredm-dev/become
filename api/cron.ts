@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import webpush from 'web-push';
-import { listSubs, delSub, userLocalHour } from './_lib/store';
-import { todayFor } from './_lib/workouts';
+import { listSubs, delSub, userLocalHour } from './_lib/store.js';
+import { todayFor } from './_lib/workouts.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Optional cron auth — Vercel sets this header on scheduled runs

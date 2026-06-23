@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { stripe } from './_lib/stripe';
-import { putBilling, userIdForCustomer, type BillingRecord } from './_lib/billing';
+import { stripe } from './_lib/stripe.js';
+import { putBilling, userIdForCustomer, type BillingRecord } from './_lib/billing.js';
 
 // Vercel: disable body parsing so we can read raw body for signature verification.
 export const config = { api: { bodyParser: false } };

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getBilling, isProActive } from './_lib/billing';
+import { getBilling, isProActive } from './_lib/billing.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const userId = String(req.query.userId || '').trim();
