@@ -178,7 +178,7 @@ export default function App() {
   const weekNum = weekNumber(state.programStartDate || state.profile.createdAt);
 
   return (
-    <div className="app">
+    <>
       {showProGate && (
         <ProGate onStartTrial={handleProStart} onMaybeLater={handleProDismiss} />
       )}
@@ -190,13 +190,15 @@ export default function App() {
           onDismiss={handleCheckInDismiss}
         />
       )}
-      {view === 'dash' && <Dashboard state={state} onNav={v => setView(v as View)} />}
-      {view === 'workout' && <WorkoutView state={state} onSave={onSaveWorkout} onBack={() => setView('dash')} />}
-      {view === 'nutrition' && <NutritionView state={state} onSave={onSaveNutrition} onBack={() => setView('dash')} />}
-      {view === 'progress' && <ProgressView state={state} onLogWeight={onLogWeight} onSaveBodyMeasurement={onSaveBodyMeasurement} onBack={() => setView('dash')} />}
-      {view === 'program' && <ProgramView state={state} onBack={() => setView('dash')} />}
-      {view === 'settings' && <Settings state={state} onUpdate={onUpdateProfile} onReset={onResetAll} onBack={() => setView('dash')} />}
-      {view === 'share' && <ShareCard state={state} onBack={() => setView('dash')} />}
-    </div>
+      <div className="app">
+        {view === 'dash' && <Dashboard state={state} onNav={v => setView(v as View)} />}
+        {view === 'workout' && <WorkoutView state={state} onSave={onSaveWorkout} onBack={() => setView('dash')} />}
+        {view === 'nutrition' && <NutritionView state={state} onSave={onSaveNutrition} onBack={() => setView('dash')} />}
+        {view === 'progress' && <ProgressView state={state} onLogWeight={onLogWeight} onSaveBodyMeasurement={onSaveBodyMeasurement} onBack={() => setView('dash')} />}
+        {view === 'program' && <ProgramView state={state} onBack={() => setView('dash')} />}
+        {view === 'settings' && <Settings state={state} onUpdate={onUpdateProfile} onReset={onResetAll} onBack={() => setView('dash')} />}
+        {view === 'share' && <ShareCard state={state} onBack={() => setView('dash')} />}
+      </div>
+    </>
   );
 }
