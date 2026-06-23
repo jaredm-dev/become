@@ -7,6 +7,7 @@ export const empty: AppState = {
   weightLogs: [],
   workoutLogs: [],
   nutritionLogs: [],
+  bodyMeasurements: [],
   programStartDate: null,
   program: null,
 };
@@ -31,4 +32,21 @@ export function reset() {
 
 export function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+export function exportData(): string {
+  const raw = localStorage.getItem(KEY) ?? JSON.stringify(empty);
+  return raw;
+}
+
+export function importData(json: string): boolean {
+  try {
+    const parsed = JSON.parse(json);
+    // Basic validation
+    if (typeof parsed !== 'object' || parsed === null) return false;
+    localStorage.setItem(KEY, json);
+    return true;
+  } catch {
+    return false;
+  }
 }

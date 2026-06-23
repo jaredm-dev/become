@@ -26,6 +26,7 @@ export default function Dashboard({ state, onNav }: Props) {
   const lastLogDate = state.weightLogs[state.weightLogs.length - 1]?.date ?? null;
   const needsWeighIn = shouldShowInAppReminder(lastLogDate) && lastLogDate !== todayISO();
   const streaks = computeStreaks(state);
+  const todayNutrition = state.nutritionLogs.find(n => n.date === todayISO());
 
   return (
     <div className="dash">
@@ -74,6 +75,28 @@ export default function Dashboard({ state, onNav }: Props) {
           <div className="stat-unit">kcal</div>
         </div>
       </section>
+
+      {todayNutrition && (
+        <div className="nutrition-summary" onClick={() => onNav('nutrition')}>
+          <div className="ns-row">
+            <span className="ns-label">Today's intake</span>
+            <span className="ns-cals">{todayNutrition.calories} / {m.calories} kcal</span>
+          </div>
+          <div className="ns-bars">
+            <div className="ns-bar-wrap">
+              <div className="ns-bar-fill" style={{ width: `${Math.min(100, Math.round((todayNutrition.calories / m.calories) * 100))}%`, background: 'var(--accent)' }} />
+            </div>
+            <div className="ns-bar-wrap">
+              <div className="ns-bar-fill" style={{ width: `${Math.min(100, Math.round((todayNutrition.proteinG / m.proteinG) * 100))}%`, background: '#a78bfa' }} />
+            </div>
+          </div>
+          <div className="ns-macros">
+            <span>P {todayNutrition.proteinG}g</span>
+            <span>C {todayNutrition.carbsG}g</span>
+            <span>F {todayNutrition.fatG}g</span>
+          </div>
+        </div>
+      )}
 
       <button className="big-action" onClick={() => onNav('workout')}>
         <div className="ba-label">Today's session</div>

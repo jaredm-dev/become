@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AppState, Profile, MuscleGroup } from '../types';
 import { getReminderTime, setReminderTime, clearReminder, requestNotificationPermission } from '../lib/reminders';
 import { subscribePush, unsubscribePush } from '../lib/push';
 import { MUSCLE_LABELS, FOCUS_PRESETS } from '../lib/program-builder';
+import { exportData, importData } from '../lib/storage';
 
 interface Props {
   state: AppState;
@@ -32,6 +33,36 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
   };
 
   const [pushStatus, setPushStatus] = useState<string>('');
+  const [importStatus, setImportStatus] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const data = exportData();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `become-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const ok = importData(text);
+      if (ok) {
+        setImportStatus('✓ Data restored! Reloading…');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        setImportStatus('✗ Invalid backup file. Please try again.');
+      }
+    };
+    reader.readAsText(file);
+  };
   const enablePush = async () => {
     if (!reminder) { setPushStatus('Set a reminder time first.'); return; }
     setPushStatus('Subscribing…');
@@ -217,7 +248,24 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
       </div>
       {pushStatus && <div className="hint" style={{ marginTop: 8 }}>{pushStatus}</div>}
 
-      <button className="danger" onClick={() => {
+      <h3 className="section-h">Data backup</h3>
+      <div className="hint" style={{ marginBottom: 12 }}>
+        Your data lives in your browser. Export a backup to keep it safe — especially before clearing your browser or switching devices.
+      </div>
+      <div className="row">
+        <button className="primary" onClick={handleExport}>⬇ Export backup</button>
+        <button onClick={() => fileInputRef.current?.click()}>⬆ Restore backup</button>
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        style={{ display: 'none' }}
+        onChange={handleImport}
+      />
+      {importStatus && <div className="hint" style={{ marginTop: 8 }}>{importStatus}</div>}
+
+      <button className="danger" style={{ marginTop: 32 }} onClick={() => {
         if (confirm('Reset everything? This deletes all data.')) onReset();
       }}>Reset all data</button>
     </div>

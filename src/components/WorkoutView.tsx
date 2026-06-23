@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { AppState, SetLog, WorkoutLog } from '../types';
 import { todayWorkout } from '../lib/workouts';
 import { todayISO } from '../lib/storage';
@@ -9,8 +9,24 @@ interface Props {
   onBack: () => void;
 }
 
+// Best set (highest weight × reps) from a previous workout log for a given exercise
+function bestPrevSet(state: AppState, exerciseName: string, excludeDate: string): SetLog | null {
+  const prevLogs = [...state.workoutLogs]
+    .filter(l => l.date !== excludeDate)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  for (const log of prevLogs) {
+    const sets = log.sets.filter(s => s.exercise === exerciseName && s.done && s.weightLb && s.reps);
+    if (sets.length > 0) {
+      // Best = highest volume set
+      return sets.reduce((best, s) => ((s.weightLb ?? 0) * (s.reps ?? 0)) > ((best.weightLb ?? 0) * (best.reps ?? 0)) ? s : best);
+    }
+  }
+  return null;
+}
+
 export default function WorkoutView({ state, onSave, onBack }: Props) {
   const p = state.profile!;
+  const today = todayISO();
   const day = todayWorkout(state, state.programStartDate || p.createdAt);
   const [sets, setSets] = useState<SetLog[]>(
     day.exercises.flatMap(ex =>
@@ -18,6 +34,15 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
     )
   );
   const [notes, setNotes] = useState('');
+
+  // Previous best per exercise — computed once on mount
+  const prevBests = useMemo(() => {
+    const map: Record<string, SetLog | null> = {};
+    for (const ex of day.exercises) {
+      map[ex.name] = bestPrevSet(state, ex.name, today);
+    }
+    return map;
+  }, []);
 
   const toggle = (i: number) => {
     setSets(s => s.map((x, idx) => (idx === i ? { ...x, done: !x.done } : x)));
@@ -28,11 +53,23 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
 
   const completed = sets.filter(s => s.done).length;
   const total = sets.length;
+  const [finished, setFinished] = useState(false);
 
   const finish = () => {
     onSave({ date: todayISO(), dayName: day.name, sets, notes });
-    onBack();
+    setFinished(true);
+    setTimeout(() => onBack(), 1800);
   };
+
+  if (finished) {
+    return (
+      <div className="workout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
+        <div style={{ fontSize: 56 }}>💪</div>
+        <div style={{ fontSize: 22, fontWeight: 700 }}>Session logged.</div>
+        <div style={{ color: 'var(--muted)', fontSize: 14 }}>{completed}/{total} sets · {day.name}</div>
+      </div>
+    );
+  }
 
   let setIdx = 0;
 
@@ -54,13 +91,21 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
       )}
 
       <div className="exercises">
-        {day.exercises.map((ex, exIdx) => (
+        {day.exercises.map((ex, exIdx) => {
+          const prev = prevBests[ex.name];
+          return (
           <div key={exIdx} className="exercise">
             <div className="ex-head">
               <div>
                 <div className="ex-name">{ex.name}</div>
                 <div className="ex-target">{ex.sets}×{ex.reps} {ex.rir && `· RIR ${ex.rir}`}</div>
               </div>
+              {prev && prev.weightLb && prev.reps && (
+                <div className="prev-best">
+                  <span className="prev-label">Last</span>
+                  <span className="prev-val">{prev.weightLb}lb × {prev.reps}</span>
+                </div>
+              )}
             </div>
             {ex.notes && <div className="ex-note">💡 {ex.notes}</div>}
             <div className="sets">
@@ -88,7 +133,8 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {day.cooldown.length > 0 && (
@@ -101,7 +147,14 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
       <label className="notes-label">Session notes</label>
       <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="How did it feel? Anything to fix next time?" />
 
-      <button className="primary big" onClick={finish}>Finish session</button>
+      <button
+        className="primary big"
+        onClick={finish}
+        disabled={completed === 0}
+        style={{ opacity: completed === 0 ? 0.4 : 1 }}
+      >
+        Finish session {completed > 0 ? `(${completed}/${total} sets)` : ''}
+      </button>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { AppState, Profile, WeightLog, WorkoutLog, NutritionLog } from './types';
+import type { AppState, Profile, WeightLog, WorkoutLog, NutritionLog, BodyMeasurement } from './types';
 import { load, save, reset, todayISO } from './lib/storage';
 import { buildProgram } from './lib/program-builder';
 import Onboarding from './components/Onboarding';
@@ -76,6 +76,12 @@ export default function App() {
       nutritionLogs: [...s.nutritionLogs.filter(n => n.date !== log.date), log],
     }));
   };
+  const onSaveBodyMeasurement = (m: BodyMeasurement) => {
+    setState(s => ({
+      ...s,
+      bodyMeasurements: [...(s.bodyMeasurements || []).filter(b => b.date !== m.date), m],
+    }));
+  };
   const onUpdateProfile = (p: Profile) => {
     setState(s => ({ ...s, profile: p, program: buildProgram(p) }));
     setView('dash');
@@ -87,7 +93,7 @@ export default function App() {
       {view === 'dash' && <Dashboard state={state} onNav={v => setView(v as View)} />}
       {view === 'workout' && <WorkoutView state={state} onSave={onSaveWorkout} onBack={() => setView('dash')} />}
       {view === 'nutrition' && <NutritionView state={state} onSave={onSaveNutrition} onBack={() => setView('dash')} />}
-      {view === 'progress' && <ProgressView state={state} onLogWeight={onLogWeight} onBack={() => setView('dash')} />}
+      {view === 'progress' && <ProgressView state={state} onLogWeight={onLogWeight} onSaveBodyMeasurement={onSaveBodyMeasurement} onBack={() => setView('dash')} />}
       {view === 'program' && <ProgramView state={state} onBack={() => setView('dash')} />}
       {view === 'settings' && <Settings state={state} onUpdate={onUpdateProfile} onReset={onResetAll} onBack={() => setView('dash')} />}
       {view === 'share' && <ShareCard state={state} onBack={() => setView('dash')} />}

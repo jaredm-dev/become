@@ -27,10 +27,16 @@ export default function NutritionView({ state, onSave, onBack }: Props) {
 
   const addFromScan = (food: FoodInfo, grams: number) => {
     const f = grams / 100;
-    setCals(c => c + Math.round(food.calories * f));
-    setProtein(p => p + Math.round(food.proteinG * f));
-    setCarbs(c => c + Math.round(food.carbsG * f));
-    setFat(fa => fa + Math.round(food.fatG * f));
+    const newCals = cals + Math.round(food.calories * f);
+    const newProtein = protein + Math.round(food.proteinG * f);
+    const newCarbs = carbs + Math.round(food.carbsG * f);
+    const newFat = fat + Math.round(food.fatG * f);
+    setCals(newCals);
+    setProtein(newProtein);
+    setCarbs(newCarbs);
+    setFat(newFat);
+    // Auto-save so a back-navigation doesn't lose the scan
+    onSave({ date: todayISO(), calories: newCals, proteinG: newProtein, carbsG: newCarbs, fatG: newFat, waterOz: water });
   };
 
   if (scanning) {
@@ -65,6 +71,20 @@ export default function NutritionView({ state, onSave, onBack }: Props) {
 
       <button className="primary big" onClick={log}>Save today</button>
       <button className="big" onClick={() => setScanning(true)}>📷 Scan barcode</button>
+
+      <h3 className="section-h">Meal schedule</h3>
+      <div className="meal-schedule">
+        {mealSchedule(p).map((meal, i) => (
+          <div key={i} className="meal-row">
+            <div className="meal-time">{meal.time}</div>
+            <div className="meal-info">
+              <div className="meal-label">{meal.label}</div>
+              <div className="meal-macros">{meal.calories} kcal · P {meal.proteinG}g · C {meal.carbsG}g · F {meal.fatG}g</div>
+              <div className="meal-tip">{meal.tip}</div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <h3 className="section-h">Daily micronutrient targets</h3>
       <div className="micros">

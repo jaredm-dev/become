@@ -77,11 +77,23 @@ export interface WorkoutDay {
   kind: 'lift' | 'cardio' | 'rest' | 'lift+cardio';
 }
 
+export interface BodyMeasurement {
+  date: string;
+  chestIn?: number;
+  waistIn?: number;
+  hipsIn?: number;
+  leftArmIn?: number;
+  rightArmIn?: number;
+  leftThighIn?: number;
+  rightThighIn?: number;
+}
+
 export interface AppState {
   profile: Profile | null;
   weightLogs: WeightLog[];
   workoutLogs: WorkoutLog[];
   nutritionLogs: NutritionLog[];
+  bodyMeasurements: BodyMeasurement[];
   programStartDate: string | null;
   program: WorkoutDay[] | null;  // 7-day generated program
 }

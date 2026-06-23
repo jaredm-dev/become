@@ -730,3 +730,154 @@ textarea { min-height: 80px; resize: vertical; }
 
 /* ---- Settings ---- */
 .settings .field { margin-bottom: 8px; }
+
+/* ---- Progressive overload: previous best ---- */
+.ex-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.prev-best {
+  text-align: right;
+  flex-shrink: 0;
+}
+.prev-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 1px;
+}
+.prev-val {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---- Meal schedule ---- */
+.meal-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.meal-row {
+  display: flex;
+  gap: 12px;
+  background: var(--bg-2);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.meal-time {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 42px;
+  padding-top: 2px;
+}
+.meal-info { flex: 1; }
+.meal-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.meal-macros {
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.meal-tip {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- 1RM & strength milestones ---- */
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---- Dashboard nutrition summary ---- */
+.nutrition-summary {
+  background: var(--bg-2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+.ns-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ns-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.ns-cals {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.ns-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.ns-bar-wrap {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ns-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.ns-macros {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- Body measurements ---- */
+.measure-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.measure-item {
+  background: var(--bg-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.measure-item span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.measure-item strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.measure-form {
+  background: var(--bg-2);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
