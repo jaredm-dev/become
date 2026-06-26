@@ -50,25 +50,20 @@ export default function MealScanner({ onAdd, onClose, onUpgrade }: Props) {
   const [busy, setBusy] = useState(false);
   const [hitFreeLimit, setHitFreeLimit] = useState(false);
   const [portionMultiplier, setPortionMultiplier] = useState(1);
+  const [hint, setHint] = useState('');
+  const [lastImageData, setLastImageData] = useState<{ data: string; mediaType: string } | null>(null);
 
   const onPick = () => fileRef.current?.click();
 
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setResult(null);
-    setHitFreeLimit(false);
-    setStatus('Analyzing photo…');
+  async function runScan(imgData: { data: string; mediaType: string }, hintText?: string) {
     setBusy(true);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-
+    setHitFreeLimit(false);
+    setStatus(hintText ? `Re-analyzing with hint: "${hintText}"…` : 'Analyzing photo…');
     try {
-      const { data, mediaType } = await fileToCompressedBase64(file);
       const r = await fetch('/api/scan-meal', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ userId: getUserId(), imageData: data, mediaType }),
+        body: JSON.stringify({ userId: getUserId(), imageData: imgData.data, mediaType: imgData.mediaType, hint: hintText }),
       });
       if (r.status === 402) {
         const j = await r.json();
@@ -89,6 +84,24 @@ export default function MealScanner({ onAdd, onClose, onUpgrade }: Props) {
     } finally {
       setBusy(false);
     }
+  }
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setResult(null);
+    setHint('');
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    const compressed = await fileToCompressedBase64(file);
+    setLastImageData(compressed);
+    await runScan(compressed);
+  };
+
+  const onRetryWithHint = async () => {
+    if (!hint.trim() || !lastImageData) return;
+    setResult(null);
+    await runScan(lastImageData, hint.trim());
   };
 
   const addToToday = () => {
@@ -164,8 +177,22 @@ export default function MealScanner({ onAdd, onClose, onUpgrade }: Props) {
 
           {result.notes && <div className="sr-notes">💡 {result.notes}</div>}
 
+          <div className="hint-correct">
+            <label style={{ marginTop: 0 }}>Wrong? Tell me what it is</label>
+            <div className="row">
+              <input
+                type="text"
+                placeholder="e.g. sourdough bread, chicken pad thai…"
+                value={hint}
+                onChange={e => setHint(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') onRetryWithHint(); }}
+              />
+              <button onClick={onRetryWithHint} disabled={!hint.trim() || busy}>Re-scan</button>
+            </div>
+          </div>
+
           <button className="primary big" onClick={addToToday}>Add to today</button>
-          <button onClick={() => { setResult(null); setPreviewUrl(null); }}>Scan another</button>
+          <button onClick={() => { setResult(null); setPreviewUrl(null); setLastImageData(null); setHint(''); }}>Scan another</button>
         </div>
       )}
 

@@ -589,6 +589,14 @@ button.card.on span { color: rgba(0,18,22,0.7); }
 }
 .upgrade-card strong { display: block; font-size: 16px; margin-bottom: 6px; }
 .upgrade-card p { font-size: 13px; color: #d4d4d4; line-height: 1.5; margin: 0 0 14px; }
+
+.hint-correct {
+  background: var(--bg-3);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px 0;
+}
+.hint-correct label { margin-top: 0; margin-bottom: 6px; font-size: 12px; }
 .ex-target { color: var(--accent); font-size: 13px; font-weight: 600; margin-top: 2px; }
 .ex-note { font-size: 12px; color: var(--muted); margin: 8px 0; padding: 8px; background: var(--bg); border-radius: 8px; }
 

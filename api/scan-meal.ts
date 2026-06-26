@@ -50,14 +50,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    const userHint = body.hint ? String(body.hint).trim().slice(0, 200) : '';
+
     const anthropic = new Anthropic({ apiKey });
     const result = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 800,
       system:
-        'You are a precise nutrition analyst. Given a photo of food, estimate the visible portion macros. ' +
-        'Always respond with ONLY valid JSON in this exact shape (no prose, no markdown fences):\n' +
-        '{"name":"short name","confidence":"high|medium|low","calories":0,"proteinG":0,"carbsG":0,"fatG":0,"notes":"caveats"}',
+        'You are a precise nutrition analyst. You analyze food photos and estimate the macros for the visible portion. ' +
+        'Be careful and conservative — if you are not sure what something is, say so via the confidence field and notes. ' +
+        'Common pitfalls to avoid: confusing bread with meatloaf, mistaking pasta dishes for casseroles, missing toppings (oil, butter, dressing) that significantly change macros.\n\n' +
+        'Process:\n' +
+        '1. Look carefully — identify exactly what foods are visible (consider texture, color, shape, surface).\n' +
+        '2. If multiple items, list each one.\n' +
+        '3. Estimate portion size for each in grams.\n' +
+        '4. Sum macros for the WHOLE visible portion.\n' +
+        '5. Set confidence honestly: "high" only if you would bet money on it; "medium" if reasonable guess; "low" if unsure.\n\n' +
+        'Respond with ONLY valid JSON, no prose or markdown fences:\n' +
+        '{"name":"clear description of what you see","confidence":"high|medium|low","calories":0,"proteinG":0,"carbsG":0,"fatG":0,"notes":"what you identified and any uncertainty"}',
       messages: [
         {
           role: 'user',
@@ -69,8 +79,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             {
               type: 'text',
               text:
-                'Analyze this food photo. Estimate macros for what is visibly on the plate ' +
-                '(the portion someone would eat). If multiple items, sum them. Respond with the JSON only.',
+                userHint
+                  ? `The user clarified: "${userHint}". Use that as ground truth for what the food is. Estimate macros for the visible portion. Respond with the JSON only.`
+                  : 'Analyze this food photo carefully. Identify the food, then estimate macros for the entire visible portion. Be honest about confidence. Respond with the JSON only.',
             },
           ],
         },
