@@ -1,5 +1,6 @@
 import type { AppState } from '../types';
 import { programFor } from '../lib/workouts';
+import { youtubeUrlFor } from '../lib/exerciseVideos';
 
 interface Props {
   state: AppState;
@@ -39,7 +40,7 @@ export default function ProgramView({ state, onBack }: Props) {
                 <strong>{ex.name}</strong>{' '}
                 <a
                   className="ex-video inline"
-                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' proper form technique')}`}
+                  href={youtubeUrlFor(ex.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Watch form video"

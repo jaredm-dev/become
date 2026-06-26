@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { AppState, SetLog, WorkoutLog } from '../types';
 import { todayWorkout } from '../lib/workouts';
 import { todayISO } from '../lib/storage';
+import { youtubeUrlFor, hasCuratedVideo } from '../lib/exerciseVideos';
 
 interface Props {
   state: AppState;
@@ -101,10 +102,10 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
                   {ex.name}
                   <a
                     className="ex-video"
-                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' proper form technique')}`}
+                    href={youtubeUrlFor(ex.name)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Watch form video on YouTube"
+                    title={hasCuratedVideo(ex.name) ? 'Watch form tutorial' : 'Browse form videos'}
                     onClick={e => e.stopPropagation()}
                   >📹</a>
                 </div>
