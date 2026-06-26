@@ -1,7 +1,31 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { stripe } from './_lib/stripe.js';
-import { putBilling, userIdForCustomer, type BillingRecord } from './_lib/billing.js';
+import { putBilling, userIdForCustomer, getBilling, getReferrerOf, markReferralPaid, applyBonusDays, type BillingRecord } from './_lib/billing.js';
+
+const REFERRAL_BONUS_DAYS = 30;
+
+async function creditReferrer(referrerUserId: string) {
+  const bonus = REFERRAL_BONUS_DAYS;
+  await markReferralPaid(referrerUserId, bonus);
+  // Try to give them a free month via 100%-off coupon on next invoice
+  const refRec = await getBilling(referrerUserId);
+  if (!refRec) return; // referrer hasn't subscribed yet — credit will sit in stats
+  try {
+    const coupon = await stripe().coupons.create({
+      percent_off: 100,
+      duration: 'once',
+      name: `Referral bonus (${bonus} days)`,
+      metadata: { userId: referrerUserId, kind: 'referral' },
+    });
+    await stripe().subscriptions.update(refRec.subscriptionId, {
+      discounts: [{ coupon: coupon.id }],
+    });
+    await applyBonusDays(referrerUserId, bonus);
+  } catch (err) {
+    console.error('failed to apply referral coupon', err);
+  }
+}
 
 // Vercel: disable body parsing so we can read raw body for signature verification.
 export const config = { api: { bodyParser: false } };
@@ -77,7 +101,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'customer.subscription.trial_will_end': {
         const sub = event.data.object as Stripe.Subscription;
         const rec = await recordFromSubscription(sub);
-        if (rec) await putBilling(rec);
+        if (rec) {
+          // Detect first transition to "active" (trial converted to paid) and credit referrer
+          const prev = await getBilling(rec.userId);
+          const becameActive =
+            rec.status === 'active' &&
+            (!prev || (prev.status !== 'active' && prev.status !== 'canceled'));
+          await putBilling(rec);
+          if (becameActive) {
+            const referrerUserId = await getReferrerOf(rec.userId);
+            if (referrerUserId) await creditReferrer(referrerUserId);
+          }
+        }
         break;
       }
       default:

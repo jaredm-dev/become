@@ -36,7 +36,15 @@ export default function ProgramView({ state, onBack }: Props) {
           <ul className="ex-list">
             {day.exercises.map((ex, j) => (
               <li key={j}>
-                <strong>{ex.name}</strong> — {ex.sets}×{ex.reps}{ex.rir && ` @ RIR ${ex.rir}`}
+                <strong>{ex.name}</strong>{' '}
+                <a
+                  className="ex-video inline"
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' proper form technique')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Watch form video"
+                >📹</a>
+                {' '}— {ex.sets}×{ex.reps}{ex.rir && ` @ RIR ${ex.rir}`}
                 {ex.notes && <div className="ex-note">{ex.notes}</div>}
               </li>
             ))}

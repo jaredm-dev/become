@@ -16,3 +16,8 @@ if ('serviceWorker' in navigator) {
 }
 
 import('./lib/reminders').then(({ scheduleNext }) => scheduleNext());
+
+import('./lib/referral').then(({ captureReferralFromURL, reportReferralOnce }) => {
+  captureReferralFromURL();
+  reportReferralOnce();
+});

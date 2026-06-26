@@ -5,6 +5,7 @@ import { subscribePush, unsubscribePush } from '../lib/push';
 import { MUSCLE_LABELS, FOCUS_PRESETS } from '../lib/program-builder';
 import { exportData, importData } from '../lib/storage';
 import { refreshProStatus, openCustomerPortal, startCheckout, getCachedProStatus, type ProStatus } from '../lib/pro';
+import { fetchReferralStats, shareReferralLink, getReferralLink, type ReferralStats } from '../lib/referral';
 
 interface Props {
   state: AppState;
@@ -29,6 +30,18 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
   const [billingBusy, setBillingBusy] = useState(false);
   const [billingMsg, setBillingMsg] = useState('');
   useEffect(() => { refreshProStatus().then(setPro); }, []);
+
+  const [refStats, setRefStats] = useState<ReferralStats>({ totalReferrals: 0, paidReferrals: 0, bonusDaysEarned: 0, bonusDaysApplied: 0 });
+  const [refMsg, setRefMsg] = useState('');
+  useEffect(() => { fetchReferralStats().then(setRefStats); }, []);
+  const onShare = async () => {
+    const r = await shareReferralLink();
+    setRefMsg(r.ok ? (r.reason || 'Shared') : (r.reason || 'Failed to share'));
+  };
+  const onCopyLink = async () => {
+    try { await navigator.clipboard.writeText(getReferralLink()); setRefMsg('Copied to clipboard'); }
+    catch { setRefMsg('Could not copy'); }
+  };
 
   const onManage = async () => {
     setBillingBusy(true);
@@ -275,6 +288,35 @@ export default function Settings({ state, onUpdate, onReset, onBack }: Props) {
         </div>
       )}
       {billingMsg && <div className="hint" style={{ marginTop: 6, color: 'var(--danger)' }}>{billingMsg}</div>}
+
+      <h3 className="section-h">Refer a friend</h3>
+      <div className="referral-block">
+        <div className="ref-pitch">
+          Share BECOME. When your friend pays for their first month, you both get a free month.
+        </div>
+        <div className="ref-stats">
+          <div className="ref-stat">
+            <div className="ref-stat-l">SIGNED UP</div>
+            <div className="ref-stat-v">{refStats.totalReferrals}</div>
+          </div>
+          <div className="ref-stat">
+            <div className="ref-stat-l">PAID</div>
+            <div className="ref-stat-v" style={{ color: '#facc15' }}>{refStats.paidReferrals}</div>
+          </div>
+          <div className="ref-stat">
+            <div className="ref-stat-l">FREE DAYS</div>
+            <div className="ref-stat-v" style={{ color: '#22d3ee' }}>{refStats.bonusDaysEarned}</div>
+          </div>
+        </div>
+        <div className="ref-link-row">
+          <input type="text" value={getReferralLink()} readOnly onFocus={e => e.currentTarget.select()} />
+        </div>
+        <div className="row">
+          <button className="primary" style={{ flex: 2 }} onClick={onShare}>📤 Share</button>
+          <button style={{ flex: 1 }} onClick={onCopyLink}>Copy</button>
+        </div>
+        {refMsg && <div className="hint" style={{ marginTop: 6 }}>{refMsg}</div>}
+      </div>
 
       <h3 className="section-h">Daily weigh-in reminder</h3>
       <div className="field">

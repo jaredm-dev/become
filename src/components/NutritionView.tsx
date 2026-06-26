@@ -5,6 +5,8 @@ import { todayISO } from '../lib/storage';
 import BarcodeScanner from './BarcodeScanner';
 import type { FoodInfo } from '../lib/food';
 import { mealSchedule } from '../lib/meals';
+import MealScanner from './MealScanner';
+import { startCheckout } from '../lib/pro';
 
 interface Props {
   state: AppState;
@@ -24,6 +26,19 @@ export default function NutritionView({ state, onSave, onBack }: Props) {
   const [fat, setFat] = useState(today?.fatG ?? 0);
   const [water, setWater] = useState(today?.waterOz ?? 0);
   const [scanning, setScanning] = useState(false);
+  const [mealScan, setMealScan] = useState(false);
+
+  const addFromMealScan = (macros: { calories: number; proteinG: number; carbsG: number; fatG: number }) => {
+    const newCals = cals + macros.calories;
+    const newProtein = protein + macros.proteinG;
+    const newCarbs = carbs + macros.carbsG;
+    const newFat = fat + macros.fatG;
+    setCals(newCals);
+    setProtein(newProtein);
+    setCarbs(newCarbs);
+    setFat(newFat);
+    onSave({ date: todayISO(), calories: newCals, proteinG: newProtein, carbsG: newCarbs, fatG: newFat, waterOz: water });
+  };
 
   const addFromScan = (food: FoodInfo, grams: number) => {
     const f = grams / 100;
@@ -41,6 +56,15 @@ export default function NutritionView({ state, onSave, onBack }: Props) {
 
   if (scanning) {
     return <BarcodeScanner onAdd={addFromScan} onClose={() => setScanning(false)} />;
+  }
+  if (mealScan) {
+    return (
+      <MealScanner
+        onAdd={addFromMealScan}
+        onClose={() => setMealScan(false)}
+        onUpgrade={() => { startCheckout('yearly'); }}
+      />
+    );
   }
 
   const log = () => {
@@ -70,7 +94,10 @@ export default function NutritionView({ state, onSave, onBack }: Props) {
       </div>
 
       <button className="primary big" onClick={log}>Save today</button>
-      <button className="big" onClick={() => setScanning(true)}>📷 Scan barcode</button>
+      <div className="row">
+        <button className="big" style={{ flex: 1 }} onClick={() => setScanning(true)}>📷 Scan barcode</button>
+        <button className="big" style={{ flex: 1 }} onClick={() => setMealScan(true)}>✨ AI photo</button>
+      </div>
 
       <h3 className="section-h">Meal schedule</h3>
       <div className="meal-schedule">

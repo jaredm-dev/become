@@ -97,7 +97,17 @@ export default function WorkoutView({ state, onSave, onBack }: Props) {
           <div key={exIdx} className="exercise">
             <div className="ex-head">
               <div>
-                <div className="ex-name">{ex.name}</div>
+                <div className="ex-name">
+                  {ex.name}
+                  <a
+                    className="ex-video"
+                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' proper form technique')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Watch form video on YouTube"
+                    onClick={e => e.stopPropagation()}
+                  >📹</a>
+                </div>
                 <div className="ex-target">{ex.sets}×{ex.reps} {ex.rir && `· RIR ${ex.rir}`}</div>
               </div>
               {prev && prev.weightLb && prev.reps && (
