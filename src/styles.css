@@ -1862,3 +1862,203 @@ button.primary:not(:disabled):hover {
   .track-fill::after, .sc-bar-fill::after { animation: none; display: none; }
   .big-action { animation: none; }
 }
+
+/* ============================================================
+   UI 3.1 — LEGIBILITY + IMPACT PASS
+   Every label readable. Every focal point commands attention.
+   ============================================================ */
+
+/* ---------- Global contrast lift ---------- */
+:root {
+  --muted: #9aa4bb;          /* was #8b93a7 — brighter secondary text */
+  --fg: #f7f8fb;
+}
+body { font-size: 16px; }
+
+/* Kill every sub-12px label. Floor is 12px, weight 600+, brighter ink. */
+.streak-chip-l, .streak-chip-u, .stat-label, .stat-unit,
+.dc-dow, .sc-stat-l, .sc-bar-label, .ref-stat-l,
+.ring-label, .ring-val, .field .tgt, .prev-label, .ns-label {
+  font-size: 12px !important;
+  font-weight: 600;
+  color: #aeb7cc;
+}
+.sc-foot { color: #8b93a7 !important; font-size: 12px !important; }
+.tab { font-size: 11.5px; color: #9aa4bb; }
+.tab.on { color: var(--fg); }
+
+/* Inputs: readable placeholders, brighter borders */
+input, textarea, select { border-color: rgba(255,255,255,0.12); }
+input::placeholder, textarea::placeholder { color: #737d94; }
+
+/* ---------- HERO: the focal point ---------- */
+.dash .hero { position: relative; padding-top: 28px; }
+.dash .hero::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130%;
+  height: 120%;
+  background: radial-gradient(ellipse 60% 55% at 50% 40%, rgba(250,204,21,0.09), rgba(34,211,238,0.05) 55%, transparent 75%);
+  pointer-events: none;
+  z-index: -1;
+}
+.big {
+  font-size: 88px;
+  filter: drop-shadow(0 0 24px rgba(250,204,21,0.18));
+}
+.big span {
+  -webkit-text-fill-color: #b8c0d4;
+  font-size: 22px;
+}
+.hello {
+  font-size: 15px;
+  color: #c3cadb;
+  font-weight: 500;
+}
+.goal-line { color: #aeb7cc; font-size: 14px; }
+.pct {
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(250,204,21,0.5);
+}
+.week-badge {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#141927, #141927) padding-box,
+    linear-gradient(120deg, rgba(250,204,21,0.6), rgba(34,211,238,0.6)) border-box;
+  color: #dde3f0;
+  font-weight: 800;
+}
+
+/* Thicker hero progress track with glow */
+.dash .track {
+  height: 12px;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+.dash .track-fill {
+  box-shadow: 0 0 16px rgba(250,204,21,0.35), 0 0 28px rgba(34,211,238,0.2);
+}
+
+/* ---------- Primary buttons: the gradient IS the brand ---------- */
+button.primary:not(:disabled) {
+  background: linear-gradient(120deg, var(--gold-2) 0%, var(--gold) 40%, var(--accent) 100%);
+  background-size: 180% 100%;
+  border: none;
+  color: #10131c;
+  font-weight: 700;
+  animation: gradFlow 5s ease-in-out infinite;
+  box-shadow: 0 4px 22px rgba(250,204,21,0.25), 0 4px 22px rgba(34,211,238,0.15);
+}
+button.primary:not(:disabled):hover {
+  box-shadow: 0 8px 32px rgba(250,204,21,0.35), 0 8px 32px rgba(34,211,238,0.25);
+}
+
+/* ---------- Section headers: unmissable ---------- */
+.section-h {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-top: 30px;
+  margin-bottom: 12px;
+}
+.section-h::before { height: 20px; width: 4px; }
+
+/* ---------- Today's session: louder ---------- */
+.big-action {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 30px rgba(250,204,21,0.06);
+}
+.big-action .ba-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.big-action .ba-title { font-size: 32px; color: var(--fg); }
+.big-action .ba-sub { color: #aeb7cc; font-size: 13.5px; }
+.big-action.done .ba-label { color: var(--accent); }
+
+/* ---------- Streak chips: bigger, hotter ---------- */
+.streak-chip { padding: 14px 8px; }
+.streak-chip-v { font-size: 32px; }
+.streak-chip.hot .streak-chip-l { color: #e8d38a; }
+
+/* ---------- Week strip: today really pops ---------- */
+.day-cell { flex: 0 0 74px; padding: 12px 6px; }
+.day-cell .dc-name { font-size: 16px; color: #dde3f0; }
+.day-cell.today {
+  background:
+    linear-gradient(160deg, rgba(34,211,238,0.12), rgba(34,211,238,0.02)), rgba(18,21,29,0.8);
+  border-color: rgba(34,211,238,0.65);
+  box-shadow: 0 0 22px rgba(34,211,238,0.22), inset 0 0 14px rgba(34,211,238,0.06);
+  transform: translateY(-3px) scale(1.03);
+}
+.day-cell.today .dc-name { color: var(--fg); }
+.day-cell.done .dc-state { text-shadow: 0 0 10px rgba(250,204,21,0.6); font-weight: 800; }
+
+/* ---------- Nutrition summary: clearer hierarchy ---------- */
+.nutrition-summary .ns-cals { font-size: 18px; color: var(--fg); }
+.ns-macros { font-size: 13px; color: #aeb7cc; font-weight: 600; }
+.ns-bar-wrap { height: 6px; border-radius: 3px; }
+
+/* ---------- Reminder banner: gold urgency ---------- */
+.reminder-banner {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, #1a1810, #14120b) padding-box,
+    linear-gradient(120deg, rgba(250,204,21,0.7), rgba(250,204,21,0.2)) border-box;
+  box-shadow: 0 0 24px rgba(250,204,21,0.12);
+}
+.reminder-banner strong { color: var(--gold); }
+.reminder-banner .rb-sub { color: #c9b96a; }
+
+/* ---------- Stats row: numbers dominate ---------- */
+.stat-value { font-size: 34px; color: var(--fg); }
+
+/* ---------- Tip / streak phrase: readable ---------- */
+.tip, .streak-phrase { color: #c3cadb; font-size: 14.5px; line-height: 1.6; }
+
+/* ---------- Quick grid buttons ---------- */
+.quick-grid button { color: #dde3f0; font-weight: 600; }
+.quick-grid .icon { font-size: 22px; }
+
+/* ---------- Exercise cards ---------- */
+.ex-name { font-size: 17px; color: var(--fg); font-weight: 700; }
+.ex-target { color: #aeb7cc; font-size: 13.5px; }
+.prev-val { font-size: 15px; }
+.set-n { color: #aeb7cc; font-weight: 600; }
+
+/* ---------- Meal schedule ---------- */
+.meal-label { font-size: 15px; color: var(--fg); }
+.meal-macros { font-size: 13px; font-weight: 600; }
+.meal-tip { color: #9aa4bb; font-size: 12.5px; }
+.meal-time { font-size: 15px; }
+
+/* ---------- History rows ---------- */
+.hist-row { color: #dde3f0; }
+.hist-row strong { color: var(--fg); font-size: 16px; }
+.muted { color: #9aa4bb; font-size: 13px; }
+
+/* ---------- ProGate: sells harder ---------- */
+.progate-title { font-size: 34px; }
+.progate-sub { color: #b8c0d4; font-size: 15px; }
+.progate-feat { font-size: 14px; color: #dde3f0; }
+.progate-amount { font-size: 48px; }
+.progate-fine { color: #8b93a7; font-size: 12px; }
+.progate-plan { border-color: rgba(255,255,255,0.12); }
+.progate-plan.on {
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(250,204,21,0.2);
+}
+
+/* ---------- Landing: full drama ---------- */
+.landing-tagline { font-size: 42px; line-height: 1.02; }
+.landing-sub { font-size: 16px; color: #b8c0d4; }
+.pill { font-size: 13.5px; color: #dde3f0; font-weight: 600; padding: 9px 15px; }
+.landing-fine { color: #9aa4bb; }

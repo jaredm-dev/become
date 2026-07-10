@@ -1,4 +1,4 @@
-const CACHE = 'godmode-v2';
+const CACHE = 'godmode-v3';
 const CORE = ['/', '/index.html', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
