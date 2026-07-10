@@ -1,6 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
 import type { AppState } from '../types';
 import { macroTargets, tdee, weeksToGoal, progressPct, paceVerdict, targetDate } from '../lib/calculations';
-import { todayWorkout } from '../lib/workouts';
+import { todayWorkout, workoutForDate } from '../lib/workouts';
 import { shouldShowInAppReminder } from '../lib/reminders';
 import { todayISO } from '../lib/storage';
 import { computeStreaks, streakPhrase } from '../lib/streaks';
@@ -9,6 +10,28 @@ import Title from './Title';
 function weekNumber(startIso: string): number {
   return Math.floor((Date.now() - new Date(startIso).getTime()) / (7 * 86_400_000)) + 1;
 }
+
+/** Animated count-up for the hero number. Eases out over ~0.9s. */
+function useCountUp(target: number, decimals = 1): string {
+  const [val, setVal] = useState(0);
+  const raf = useRef<number>(0);
+  useEffect(() => {
+    const dur = 900;
+    const start = performance.now();
+    const from = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setVal(from + (target - from) * eased);
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [target]);
+  return val.toFixed(decimals).replace(/\.0$/, '');
+}
+
+const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 interface Props {
   state: AppState;
@@ -27,12 +50,32 @@ export default function Dashboard({ state, onNav }: Props) {
   const wk = todayWorkout(state, state.programStartDate || p.createdAt);
 
   const latestWeight = state.weightLogs[state.weightLogs.length - 1]?.weightLb ?? p.currentWeightLb;
+  const animatedWeight = useCountUp(latestWeight);
   const lastLogDate = state.weightLogs[state.weightLogs.length - 1]?.date ?? null;
   const needsWeighIn = shouldShowInAppReminder(lastLogDate) && lastLogDate !== todayISO();
   const streaks = computeStreaks(state);
   const todayNutrition = state.nutritionLogs.find(n => n.date === todayISO());
   const weekNum = weekNumber(state.programStartDate || p.createdAt);
   const todayWorkoutDone = state.workoutLogs.some(l => l.date === todayISO());
+
+  // 7-day strip: today ± 3 days
+  const startDate = state.programStartDate || p.createdAt;
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + (i - 3));
+    const iso = d.toISOString().slice(0, 10);
+    const w = workoutForDate(state, startDate, d);
+    const logged = state.workoutLogs.some(l => l.date === iso);
+    return {
+      iso,
+      dow: DOW[d.getDay()],
+      dayNum: d.getDate(),
+      name: w ? w.name.split(' ')[0] : '—',
+      isToday: iso === todayISO(),
+      logged,
+      isRest: w?.kind === 'rest',
+    };
+  });
 
   return (
     <div className="dash">
@@ -54,7 +97,7 @@ export default function Dashboard({ state, onNav }: Props) {
           <div className="hello">Hey, {p.name}</div>
           <div className="week-badge">Week {weekNum}</div>
         </div>
-        <div className="big">{latestWeight} <span>lb</span></div>
+        <div className="big">{animatedWeight} <span>lb</span></div>
         <div className="goal-line">
           → {p.goalWeightLb} lb · {weeks} wk · {tDateStr}
         </div>
@@ -113,18 +156,28 @@ export default function Dashboard({ state, onNav }: Props) {
         <div className="ba-sub">{wk.focus} · ~{wk.estMinutes} min · {wk.exercises.length} exercises</div>
       </button>
 
+      <div className="week-strip">
+        {weekDays.map(d => (
+          <div key={d.iso} className={`day-cell ${d.isToday ? 'today' : ''} ${d.logged ? 'done' : ''}`}>
+            <div className="dc-dow">{d.dow}</div>
+            <div className="dc-name">{d.isRest ? 'Rest' : d.name}</div>
+            <div className="dc-state">{d.logged ? '✓' : d.isToday ? '●' : d.dayNum}</div>
+          </div>
+        ))}
+      </div>
+
       <div className="streak-chips">
-        <div className="streak-chip">
+        <div className={`streak-chip ${streaks.workout > 0 ? 'hot' : ''}`}>
           <div className="streak-chip-l">WORKOUT</div>
           <div className="streak-chip-v">{streaks.workout}</div>
           <div className="streak-chip-u">{streaks.workout === 1 ? 'day' : 'days'}</div>
         </div>
-        <div className="streak-chip">
+        <div className={`streak-chip ${streaks.protein > 0 ? 'hot' : ''}`}>
           <div className="streak-chip-l">PROTEIN</div>
           <div className="streak-chip-v">{streaks.protein}</div>
           <div className="streak-chip-u">{streaks.protein === 1 ? 'day' : 'days'}</div>
         </div>
-        <div className="streak-chip">
+        <div className={`streak-chip ${streaks.weighIn > 0 ? 'hot' : ''}`}>
           <div className="streak-chip-l">WEIGH-IN</div>
           <div className="streak-chip-v">{streaks.weighIn}</div>
           <div className="streak-chip-u">{streaks.weighIn === 1 ? 'day' : 'days'}</div>

@@ -35,3 +35,13 @@ export function todayWorkout(state: AppState, programStartDate: string): Workout
   const idx = ((days % prog.length) + prog.length) % prog.length;
   return prog[idx];
 }
+
+// Workout for an arbitrary date (used by the dashboard week strip)
+export function workoutForDate(state: AppState, programStartDate: string, date: Date): WorkoutDay | null {
+  const prog = programFor(state);
+  if (prog.length === 0) return null;
+  const start = new Date(programStartDate);
+  const days = Math.floor((date.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  const idx = ((days % prog.length) + prog.length) % prog.length;
+  return prog[idx];
+}
