@@ -131,24 +131,12 @@ export default function Dashboard({ state, onNav }: Props) {
         </div>
       </div>
 
-      <div className="quick-grid">
-        <button onClick={() => onNav('nutrition')}>
-          <span className="icon">🍳</span>
-          <span>Nutrition</span>
-        </button>
-        <button onClick={() => onNav('progress')}>
-          <span className="icon">📈</span>
-          <span>Progress</span>
-        </button>
-        <button onClick={() => onNav('program')}>
-          <span className="icon">📋</span>
-          <span>Full Plan</span>
-        </button>
+      <div className="quick-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
         <button onClick={() => onNav('share')}>
           <span className="icon">📤</span>
           <span>Share Week</span>
         </button>
-        <button onClick={() => onNav('settings')} style={{ gridColumn: '1 / -1' }}>
+        <button onClick={() => onNav('settings')}>
           <span className="icon">⚙️</span>
           <span>Settings</span>
         </button>

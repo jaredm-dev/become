@@ -1,13 +1,17 @@
 :root {
-  --bg: #0a0a0a;
-  --bg-2: #131313;
-  --bg-3: #1c1c1c;
-  --fg: #f5f5f5;
-  --muted: #888;
-  --accent: #22d3ee;
+  --bg: #0b0d12;
+  --bg-2: #12151d;
+  --bg-3: #1a1e29;
+  --fg: #f2f4f8;
+  --muted: #8b93a7;
+  --accent: #22d3ee;        /* cyan = the goal state, completion, CTAs */
   --accent-2: #06b6d4;
+  --gold: #facc15;          /* gold = effort, streaks, in-progress */
+  --gold-2: #eab308;
   --danger: #ef4444;
-  --border: #2a2a2a;
+  --border: #232837;
+  --font-display: 'Barlow Condensed', -apple-system, 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --safe-top: env(safe-area-inset-top);
   --safe-bot: env(safe-area-inset-bottom);
 }
@@ -19,20 +23,20 @@ html, body, #root {
   padding: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overscroll-behavior-y: contain;
 }
 
 body {
-  background: radial-gradient(ellipse at top, #1a1f2e 0%, #0a0a0a 50%);
+  background: radial-gradient(ellipse 120% 60% at 50% -5%, #171d2e 0%, #0b0d12 55%);
 }
 
 .app {
   max-width: 480px;
   margin: 0 auto;
-  padding: var(--safe-top) 16px var(--safe-bot);
+  padding: var(--safe-top) 16px calc(84px + var(--safe-bot));
   min-height: 100vh;
 }
 
@@ -1372,3 +1376,191 @@ textarea { min-height: 80px; resize: vertical; }
   padding: 4px 10px;
   border-radius: 8px;
 }
+
+/* ============================================================
+   REDESIGN 2.0 — two-tone identity (gold effort → cyan goal),
+   athletic condensed numerals, bottom tab bar
+   ============================================================ */
+
+/* --- Athletic numerals: every big number uses the display face --- */
+.big,
+.stat-value,
+.streak-chip-v,
+.sc-big,
+.sc-stat-v,
+.sc-streak-v,
+.ba-title,
+.progate-amount,
+.checkin-weight-row input,
+.measure-item strong {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: none;
+}
+.step h2 { font-size: 30px; line-height: 1.05; }
+
+/* Labels: tighter, sharper */
+.stat-label, .streak-chip-l, .ns-label, .checkin-week, .prev-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+}
+
+/* --- Dashboard hero: weight number huge in condensed --- */
+.big { font-size: 76px; letter-spacing: -1px; }
+.big span { font-family: var(--font-body); font-size: 20px; font-weight: 500; }
+
+/* Progress track: gold → cyan, the brand story in one bar */
+.track-fill {
+  background: linear-gradient(90deg, var(--gold-2), var(--gold) 40%, var(--accent));
+}
+.pct { color: var(--gold); }
+
+/* --- Streak chips: gold, they're effort --- */
+.streak-chip-v { color: var(--gold); font-size: 26px; }
+.streak-chip {
+  background: linear-gradient(180deg, rgba(250,204,21,0.05), transparent 60%), var(--bg-2);
+}
+
+/* --- Today's session card: the one big CTA --- */
+.big-action {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #141927, #10131c);
+  border: 1px solid var(--border);
+}
+.big-action::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-2), var(--gold) 40%, var(--accent));
+}
+.big-action .ba-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+.big-action.done { border-color: rgba(34,211,238,0.4); }
+.big-action.done::after { background: var(--accent); }
+
+/* --- Nutrition summary card --- */
+.nutrition-summary { border: 1px solid var(--border); }
+.ns-cals { font-family: var(--font-display); font-size: 16px; }
+
+/* --- Stat cards: quieter borders, gradient whisper --- */
+.stat {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--bg-2);
+}
+.stat-value { font-size: 30px; }
+
+/* ============================================================
+   BOTTOM TAB BAR
+   ============================================================ */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(11,13,18,0.88);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid var(--border);
+  padding: 6px 0 calc(6px + var(--safe-bot));
+}
+.tabbar-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.tab {
+  background: none;
+  border: none;
+  padding: 6px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 0;
+}
+.tab:active { transform: none; }
+.tab .t-icon { font-size: 21px; line-height: 1; }
+.tab.on { color: var(--fg); }
+.tab.on .t-dot {
+  width: 4px; height: 4px; border-radius: 2px;
+  background: var(--accent);
+  margin-top: 1px;
+}
+.tab .t-dot { width: 4px; height: 4px; margin-top: 1px; background: transparent; border-radius: 2px; }
+
+/* --- Screen headers on subviews --- */
+.screen-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 4px;
+}
+.screen-head .back-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  width: 38px; height: 38px;
+  padding: 0;
+  border-radius: 11px;
+  font-size: 17px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.screen-head h2 { margin: 0; font-size: 26px; }
+
+/* --- Settings icon button in dash header --- */
+.icon-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  width: 36px; height: 36px;
+  padding: 0;
+  border-radius: 11px;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* --- Focus visibility + reduced motion --- */
+button:focus-visible, input:focus-visible, .tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Landing polish --- */
+.landing { padding-bottom: 24px; }
+.landing-tagline { font-family: var(--font-display); font-size: 34px; font-weight: 700; }
+.pill { background: var(--bg-2); }
+
+/* --- ProGate: gold badge (it's about their effort) --- */
+.progate-badge {
+  background: linear-gradient(90deg, var(--gold-2), var(--gold));
+  color: #1c1503;
+}
+.progate-title { font-family: var(--font-display); font-size: 30px; }
+.progate-card { background: #10131c; }
+
+/* --- Weekly check-in --- */
+.checkin-msg { border-left-color: var(--gold); }
