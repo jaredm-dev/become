@@ -103,17 +103,19 @@ export default function App() {
 
   if (!state.profile) {
     return (
-      <Onboarding
-        onComplete={(p: Profile) => {
-          setState(s => ({
-            ...s,
-            profile: p,
-            programStartDate: todayISO(),
-            weightLogs: [{ date: todayISO(), weightLb: p.startWeightLb }],
-            program: buildProgram(p),
-          }));
-        }}
-      />
+      <div className="app">
+        <Onboarding
+          onComplete={(p: Profile) => {
+            setState(s => ({
+              ...s,
+              profile: p,
+              programStartDate: todayISO(),
+              weightLogs: [{ date: todayISO(), weightLb: p.startWeightLb }],
+              program: buildProgram(p),
+            }));
+          }}
+        />
+      </div>
     );
   }
 

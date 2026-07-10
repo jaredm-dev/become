@@ -1414,8 +1414,8 @@ h1, h2 {
 }
 
 /* --- Dashboard hero: weight number huge in condensed --- */
-.big { font-size: 76px; letter-spacing: -1px; }
-.big span { font-family: var(--font-body); font-size: 20px; font-weight: 500; }
+.hero .big { font-size: 76px; letter-spacing: -1px; }
+.hero .big span { font-family: var(--font-body); font-size: 20px; font-weight: 500; }
 
 /* Progress track: gold → cyan, the brand story in one bar */
 .track-fill {
@@ -1657,8 +1657,8 @@ body::after {
 .dash > *:nth-child(7) { animation-delay: 0.32s; }
 .dash > *:nth-child(8) { animation-delay: 0.37s; }
 
-/* ---------- Hero: gradient number ---------- */
-.big {
+/* ---------- Hero: gradient number (scoped: .big is also a button size class!) ---------- */
+.hero .big {
   background: linear-gradient(120deg, var(--gold) 0%, #fef3c7 30%, var(--gold) 55%, var(--accent) 100%);
   background-size: 220% 100%;
   -webkit-background-clip: text;
@@ -1666,7 +1666,7 @@ body::after {
   -webkit-text-fill-color: transparent;
   animation: gradFlow 7s ease-in-out infinite;
 }
-.big span {
+.hero .big span {
   -webkit-text-fill-color: var(--muted);
 }
 
@@ -1858,7 +1858,7 @@ button.primary:not(:disabled):hover {
 /* ---------- Reduced motion: honor it fully ---------- */
 @media (prefers-reduced-motion: reduce) {
   body::before, body::after { animation: none; }
-  .big { animation: none; }
+  .hero .big { animation: none; }
   .track-fill::after, .sc-bar-fill::after { animation: none; display: none; }
   .big-action { animation: none; }
 }
@@ -1905,11 +1905,11 @@ input::placeholder, textarea::placeholder { color: #737d94; }
   pointer-events: none;
   z-index: -1;
 }
-.big {
+.hero .big {
   font-size: 88px;
   filter: drop-shadow(0 0 24px rgba(250,204,21,0.18));
 }
-.big span {
+.hero .big span {
   -webkit-text-fill-color: #b8c0d4;
   font-size: 22px;
 }
@@ -2062,3 +2062,29 @@ button.primary:not(:disabled):hover {
 .landing-sub { font-size: 16px; color: #b8c0d4; }
 .pill { font-size: 13.5px; color: #dde3f0; font-weight: 600; padding: 9px 15px; }
 .landing-fine { color: #9aa4bb; }
+
+/* ============================================================
+   UI 3.2 — HOTFIXES
+   ============================================================ */
+
+/* Buttons must NEVER inherit text-clipping — belt and suspenders */
+button, button * {
+  -webkit-text-fill-color: currentColor;
+}
+button.primary:not(:disabled) { color: #10131c; }
+
+/* Track modifier `.big` also collided — restore it */
+.track.big {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-3);
+  -webkit-text-fill-color: initial;
+  filter: none;
+}
+
+/* Onboarding + all standalone screens: constrain like the app */
+.onboard {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--safe-top) 16px calc(24px + var(--safe-bot));
+}
